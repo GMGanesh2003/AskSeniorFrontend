@@ -11,6 +11,7 @@ import AllPage from '../Pages/AllPage';
 import CommunityPage from '../Pages/CommunityPage';
 import PostDetailPage from '../Pages/PostDetailPage';
 import ProfilePage from '../Pages/ProfilePage';
+import VerifyUser from '../Auth/VerifyUser';
 
 const AppRoutes: React.FC = () => {
   const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
@@ -21,6 +22,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/landing" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/verify/:token" element={<VerifyUser />} />
       
       {/* Protected Routes */}
       <Route path="/" element={
