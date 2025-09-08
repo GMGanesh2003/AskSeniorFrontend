@@ -63,6 +63,7 @@ const LoginPage: React.FC = () => {
           return;
         }
 
+        localStorage.setItem("currentUser", JSON.stringify(userResp));
         dispatch(loginSuccess(userResp));
         navigate('/');
       } else {

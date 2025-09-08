@@ -21,9 +21,11 @@ export interface AuthState {
   error: string | null;
 }
 
+const storedUser = localStorage.getItem("currentUser");
+
 const initialState: AuthState = {
-  isAuthenticated: false,
-  user: null,
+  isAuthenticated: !!storedUser,
+  user: storedUser ? JSON.parse(storedUser) : null,
   isLoading: false,
   error: null,
 };
@@ -49,6 +51,7 @@ const authSlice = createSlice({
       state.error = action.payload;
     },
     logout: (state) => {
+      localStorage.removeItem("currentUser");
       state.isAuthenticated = false;
       state.user = null;
       state.isLoading = false;

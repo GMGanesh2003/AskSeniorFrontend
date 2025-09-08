@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
-import { useAppSelector } from '../../hooks';
+import React, { useEffect, useMemo } from 'react';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import PostCard from './PostCard';
+import { fetchPosts } from '../../store/slices/postsSlice';
 
 interface PostFeedProps {
   showPopularOnly?: boolean;
@@ -8,7 +9,13 @@ interface PostFeedProps {
 }
 
 const PostFeed: React.FC<PostFeedProps> = ({ showPopularOnly, communityFilter }) => {
+  const dispatch = useAppDispatch();
   const { posts, sortBy, searchQuery, activeFilters } = useAppSelector(state => state.posts);
+
+  useEffect(() => {
+    dispatch(fetchPosts());
+  }, [dispatch]);
+
 
   const filteredAndSortedPosts = useMemo(() => {
     let filtered = [...posts];
@@ -64,7 +71,7 @@ const PostFeed: React.FC<PostFeedProps> = ({ showPopularOnly, communityFilter })
           return bHot - aHot;
         });
       case 'new':
-        return filtered.sort((a, b) => 
+        return filtered.sort((a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
       case 'top':
@@ -96,8 +103,8 @@ const PostFeed: React.FC<PostFeedProps> = ({ showPopularOnly, communityFilter })
 
   return (
     <div className="space-y-4 p-4">
-      {filteredAndSortedPosts.map((post) => (
-        <PostCard key={post.id} post={post} />
+      {filteredAndSortedPosts.map((post, idx) => (
+        <PostCard key={idx} post={post} />
       ))}
     </div>
   );

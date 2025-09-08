@@ -14,29 +14,29 @@ const PostCard: React.FC<PostCardProps> = ({ post, showFullContent = false }) =>
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const handleVote = (voteType: 'up' | 'down', e: React.MouseEvent) => {
+  const handleVote = (voteType: 'up' | 'down', e: React.MouseEvent) => {    
     e.preventDefault();
     e.stopPropagation();
-    dispatch(votePost({ postId: post.id, voteType }));
+    dispatch(votePost({ postId: post._id, voteType }));
   };
 
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    dispatch(toggleSavePost(post.id));
+    dispatch(toggleSavePost(post._id));
   };
 
   const handleShare = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
+    navigator.clipboard.writeText(`${window.location.origin}/post/${post._id}`);
   };
 
   const getVoteScore = () => post.upvotes - post.downvotes;
 
   const handleCardClick = () => {
     if (!showFullContent) {
-      navigate(`/post/${post.id}`);
+      navigate(`/post/${post._id}`);
     }
   };
 
@@ -110,29 +110,6 @@ const PostCard: React.FC<PostCardProps> = ({ post, showFullContent = false }) =>
               <p className="line-clamp-3">{post.content}</p>
             )}
             
-            {post.type === 'image' && post.imageUrl && (
-              <div className="mt-3">
-                <img 
-                  src={post.imageUrl} 
-                  alt="Post content" 
-                  className="max-w-full h-auto rounded-lg"
-                />
-              </div>
-            )}
-            
-            {post.type === 'link' && post.linkUrl && (
-              <div className="mt-3">
-                <a 
-                  href={post.linkUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-400 hover:text-blue-300 underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {post.linkUrl}
-                </a>
-              </div>
-            )}
           </div>
 
           {/* Post Tags */}

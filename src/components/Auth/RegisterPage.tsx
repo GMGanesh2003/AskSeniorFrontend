@@ -130,13 +130,13 @@ const RegisterPage: React.FC = () => {
     const response = await request.json();
     console.log(response);
 
-    if (response.status === 'error') {
-      dispatch(loginFailure(response.message));
+    if (response.error) {
+      dispatch(loginFailure(response.error));
       return;
     }
 
-    dispatch(loginSuccess(newUser));
-    navigate('/');
+    // dispatch(loginSuccess(newUser));
+    navigate('/login');
 
   };
 
