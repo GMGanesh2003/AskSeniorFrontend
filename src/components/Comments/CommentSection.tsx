@@ -10,20 +10,33 @@ interface CommentSectionProps {
 const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector(state => state.auth.user);
-  const comments = useAppSelector(state => 
+  const comments = useAppSelector(state =>
     state.comments.comments.filter(c => c.postId === postId && !c.parentId)
   );
   
   const [newComment, setNewComment] = useState('');
 
-  const handleSubmitComment = (e: React.FormEvent) => {
+  const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim() || !currentUser) return;
+
+    const request = await fetch(`http://localhost:5000/api/v1/answer/${postId}/comments`, {
+      method: "POST",
+      credentials: "include",
+      headers: new Headers({
+        "Content-Type": "application/json"
+      }),
+      body: JSON.stringify({
+        content: newComment.trim()
+      })
+    })
+    const resp = await request.json()
+    console.log(resp);
 
     dispatch(addComment({
       postId,
       content: newComment.trim(),
-      author: currentUser.username,
+      author: {username: currentUser.username, _id: ""},
       createdAt: 'now',
     }));
 
@@ -36,7 +49,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
       <div className="mb-6">
         <form onSubmit={handleSubmitComment} className="space-y-3">
           <div className="text-sm text-gray-400">
-            Comment as <span className="text-blue-400">u/{currentUser.username}</span>
+            Comment as <span className="text-blue-400">u/{currentUser?.username}</span>
           </div>
           <textarea
             value={newComment}

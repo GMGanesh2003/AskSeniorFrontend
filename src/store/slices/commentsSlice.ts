@@ -1,10 +1,19 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+// -----------------------------------
+// Types
+// -----------------------------------
+
+export interface CommentAuthor {
+  _id: string;
+  username: string;
+}
 
 export interface Comment {
   id: string;
   postId: string;
   content: string;
-  author: string;
+  author: CommentAuthor;
   upvotes: number;
   downvotes: number;
   userVote?: 'up' | 'down';
@@ -16,36 +25,49 @@ export interface Comment {
 
 export interface CommentsState {
   comments: Comment[];
+  loading: boolean;
+  error: string | null;
 }
 
-const mockComments: Comment[] = [
-  {
-    id: '1',
-    postId: '1',
-    content: 'Focus on medium level problems on LeetCode. Practice 2-3 problems daily and understand the patterns. System design - start with Grokking the System Design course.',
-    author: 'amazon_sde_2021',
-    upvotes: 45,
-    downvotes: 2,
-    createdAt: '1 hour ago',
-    replies: [
-      {
-        id: '2',
-        postId: '1',
-        parentId: '1',
-        content: 'This is solid advice. Also, don\'t forget behavioral questions - Amazon focuses heavily on leadership principles.',
-        author: 'tech_senior',
-        upvotes: 23,
-        downvotes: 0,
-        createdAt: '45 minutes ago',
-        replies: [],
-      },
-    ],
-  },
-];
+// -----------------------------------
+// Constants & Initial State
+// -----------------------------------
+
+const BASE_URL = 'http://localhost:5000/api/v1/answer/comments';
 
 const initialState: CommentsState = {
-  comments: mockComments,
+  comments: [],
+  loading: false,
+  error: null,
 };
+
+// -----------------------------------
+// Thunk to Fetch All Comments
+// -----------------------------------
+
+export const fetchComments = createAsyncThunk<Comment[]>(
+  'comments/fetchComments',
+  async (_, thunkAPI) => {
+    try {
+      const response = await fetch(`${BASE_URL}`, {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch comments');
+      }
+      const data = await response.json();
+      console.log(data.comments);
+      
+      return data.comments; // Assumes API returns { comments: [...] }
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+// -----------------------------------
+// Slice
+// -----------------------------------
 
 const commentsSlice = createSlice({
   name: 'comments',
@@ -59,9 +81,9 @@ const commentsSlice = createSlice({
         downvotes: 0,
         replies: [],
       };
-      
+
       if (action.payload.parentId) {
-        // This is a reply
+        // Add as a reply
         const findAndAddReply = (comments: Comment[]): boolean => {
           for (const comment of comments) {
             if (comment.id === action.payload.parentId) {
@@ -76,13 +98,13 @@ const commentsSlice = createSlice({
         };
         findAndAddReply(state.comments);
       } else {
-        // This is a top-level comment
+        // Top-level comment
         state.comments.push(newComment);
       }
     },
     voteComment: (state, action: PayloadAction<{ commentId: string; voteType: 'up' | 'down' }>) => {
       const { commentId, voteType } = action.payload;
-      
+
       const findAndVoteComment = (comments: Comment[]): boolean => {
         for (const comment of comments) {
           if (comment.id === commentId) {
@@ -95,25 +117,24 @@ const commentsSlice = createSlice({
               // Change or add vote
               if (comment.userVote === 'up') comment.upvotes--;
               else if (comment.userVote === 'down') comment.downvotes--;
-              
+
               if (voteType === 'up') comment.upvotes++;
               else comment.downvotes++;
+
               comment.userVote = voteType;
             }
             return true;
           }
-          if (findAndVoteComment(comment.replies)) {
-            return true;
-          }
+          if (findAndVoteComment(comment.replies)) return true;
         }
         return false;
       };
-      
+
       findAndVoteComment(state.comments);
     },
     editComment: (state, action: PayloadAction<{ commentId: string; content: string }>) => {
       const { commentId, content } = action.payload;
-      
+
       const findAndEditComment = (comments: Comment[]): boolean => {
         for (const comment of comments) {
           if (comment.id === commentId) {
@@ -121,13 +142,11 @@ const commentsSlice = createSlice({
             comment.isEditing = false;
             return true;
           }
-          if (findAndEditComment(comment.replies)) {
-            return true;
-          }
+          if (findAndEditComment(comment.replies)) return true;
         }
         return false;
       };
-      
+
       findAndEditComment(state.comments);
     },
     toggleEditComment: (state, action: PayloadAction<string>) => {
@@ -137,33 +156,48 @@ const commentsSlice = createSlice({
             comment.isEditing = !comment.isEditing;
             return true;
           }
-          if (findAndToggleEdit(comment.replies)) {
-            return true;
-          }
+          if (findAndToggleEdit(comment.replies)) return true;
         }
         return false;
       };
-      
+
       findAndToggleEdit(state.comments);
     },
     deleteComment: (state, action: PayloadAction<string>) => {
-      const findAndDeleteComment = (comments: Comment[], parentComments: Comment[]): boolean => {
+      const findAndDeleteComment = (comments: Comment[]): boolean => {
         for (let i = 0; i < comments.length; i++) {
           if (comments[i].id === action.payload) {
             comments.splice(i, 1);
             return true;
           }
-          if (findAndDeleteComment(comments[i].replies, comments)) {
-            return true;
-          }
+          if (findAndDeleteComment(comments[i].replies)) return true;
         }
         return false;
       };
-      
-      findAndDeleteComment(state.comments, state.comments);
+
+      findAndDeleteComment(state.comments);
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchComments.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchComments.fulfilled, (state, action: PayloadAction<Comment[]>) => {
+        state.comments = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchComments.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+  },
 });
+
+// -----------------------------------
+// Exports
+// -----------------------------------
 
 export const {
   addComment,

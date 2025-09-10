@@ -31,7 +31,7 @@ const PostFeed: React.FC<PostFeedProps> = ({ showPopularOnly, communityFilter })
       filtered = filtered.filter(post =>
         post.title.toLowerCase().includes(query) ||
         post.content.toLowerCase().includes(query) ||
-        post.author.toLowerCase().includes(query) ||
+        post.author.username.toLowerCase().includes(query) ||
         post.community.toLowerCase().includes(query) ||
         post.tags.some(tag => tag.toLowerCase().includes(query))
       );

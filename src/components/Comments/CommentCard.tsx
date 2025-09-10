@@ -3,6 +3,7 @@ import { ChevronUp, ChevronDown, MessageSquare, MoreHorizontal, Edit, Trash2 } f
 import { useAppSelector, useAppDispatch } from '../../hooks';
 import { voteComment, addComment, editComment, toggleEditComment, deleteComment } from '../../store/slices/commentsSlice';
 import type { Comment } from '../../store/slices/commentsSlice';
+import ReactTimeAgo from 'react-time-ago';
 
 interface CommentCardProps {
   comment: Comment;
@@ -28,8 +29,8 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, level = 0 }) => {
       postId: comment.postId,
       parentId: comment.id,
       content: replyText.trim(),
-      author: currentUser.username,
-      createdAt: 'now',
+      author: {username: currentUser.username, _id: ""},
+      createdAt: new Date().toISOString(),
     }));
 
     setReplyText('');
@@ -47,8 +48,8 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, level = 0 }) => {
     }
   };
 
-  const getVoteScore = () => comment.upvotes - comment.downvotes;
-  const isAuthor = comment.author === currentUser.username;
+  const getVoteScore = () => comment.upvotes - comment.downvotes || 0;
+  const isAuthor = comment.author.username === currentUser?.username;
   const maxLevel = 5; // Prevent infinite nesting
 
   return (
@@ -56,9 +57,9 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, level = 0 }) => {
       <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
         {/* Comment Header */}
         <div className="flex items-center space-x-2 text-sm text-gray-400 mb-2">
-          <span className="font-medium text-blue-400">u/{comment.author}</span>
+          <span className="font-medium text-blue-400">u/{comment.author.username}</span>
           <span>•</span>
-          <span>{comment.createdAt}</span>
+          <span><ReactTimeAgo date={new Date(comment.createdAt)} locale="en-US" /></span>
           {isAuthor && (
             <>
               <span>•</span>

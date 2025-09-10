@@ -41,9 +41,7 @@ const LoginPage: React.FC = () => {
         const resp = await request.json()
         console.log(resp);
         
-        if (resp.error) {
-          console.log("I am here");
-          
+        if (resp.error) {          
           dispatch(loginFailure(resp.error));
           return;
         }

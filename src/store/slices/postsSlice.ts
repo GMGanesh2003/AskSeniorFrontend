@@ -147,16 +147,21 @@
 
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
+export interface PostAuthor {
+  _id: string;
+  username: string;
+}
+
 export interface Post {
   _id: string;
   id: string;
   title: string;
   content: string;
-  author: string;
+  author: PostAuthor;
   community: string;
   upvotes: number;
   downvotes: number;
-  userVote?: 'up' | 'down';
+  userVote?: 'upvote' | 'downvote';
   comments: number;
   createdAt: string;
   tags: string[];
@@ -171,7 +176,7 @@ export interface PostsState {
   loading: boolean;
   error: string | null;
 }
-const BASE_URL = 'http://localhost:5000/api/v1/question';
+const BASE_URL = 'http://localhost:5000/api/v1/question/ques';
 
 export const fetchPosts = createAsyncThunk<Post[]>(
   'posts/fetchPosts',
@@ -185,7 +190,8 @@ export const fetchPosts = createAsyncThunk<Post[]>(
         },
       });
       const dataResponse = await response.json();
-      
+      console.log(dataResponse);
+
       if (!response.ok) {
         throw new Error('Failed to fetch posts');
       }
@@ -224,23 +230,26 @@ const postsSlice = createSlice({
       };
       state.posts.unshift(newPost);
     },
-    votePost: (state, action: PayloadAction<{ postId: string; voteType: 'up' | 'down' }>) => {
+
+    votePost: (state, action: PayloadAction<{ postId: string; voteType: 'upvote' | 'downvote' }>) => {
       const { postId, voteType } = action.payload;
+
       const post = state.posts.find(p => p._id === postId);
       if (post) {
         if (post.userVote === voteType) {
-          if (voteType === 'up') post.upvotes--;
+          if (voteType === 'upvote') post.upvotes--;
           else post.downvotes--;
           post.userVote = undefined;
         } else {
-          if (post.userVote === 'up') post.upvotes--;
-          else if (post.userVote === 'down') post.downvotes--;
-          if (voteType === 'up') post.upvotes++;
+          if (post.userVote === 'upvote') post.upvotes--;
+          else if (post.userVote === 'downvote') post.downvotes--;
+          if (voteType === 'upvote') post.upvotes++;
           else post.downvotes++;
           post.userVote = voteType;
         }
       }
     },
+
     toggleSavePost: (state, action: PayloadAction<string>) => {
       const post = state.posts.find(p => p.id === action.payload);
       if (post) {
