@@ -13,7 +13,7 @@ const UserPosts: React.FC<UserPostsProps> = ({ user }) => {
   
   const [activeTab, setActiveTab] = useState<'posts' | 'comments' | 'saved'>('posts');
   
-  const userPosts = posts.filter(post => post.author === user.username);
+  const userPosts = posts.filter(post => post.author.username === user.username);
   const userComments = comments.filter(comment => comment.author === user.username);
   const savedPosts = posts.filter(post => post.saved);
 
