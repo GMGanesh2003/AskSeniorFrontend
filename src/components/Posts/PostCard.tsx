@@ -19,7 +19,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, showFullContent = false }) =>
     e.preventDefault();
     e.stopPropagation();
 
-    const request = await fetch(`http://localhost:5000/api/v1/question/${post._id}/vote`, {
+    const request = await fetch(`https://askseniorbackend.onrender.com/api/v1/question/${post._id}/vote`, {
       method: "POST",
       credentials: "include",
       headers: new Headers({
@@ -59,9 +59,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, showFullContent = false }) =>
     if (!showFullContent) {
       navigate(`/post/${post._id}`);
     }
-  };
-  console.log(post.userVote);
-  
+  };  
 
   return (
     <div

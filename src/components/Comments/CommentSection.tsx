@@ -20,7 +20,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     e.preventDefault();
     if (!newComment.trim() || !currentUser) return;
 
-    const request = await fetch(`http://localhost:5000/api/v1/answer/${postId}/comments`, {
+    const request = await fetch(`https://askseniorbackend.onrender.com/api/v1/answer/${postId}/comments`, {
       method: "POST",
       credentials: "include",
       headers: new Headers({
@@ -34,10 +34,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     console.log(resp);
 
     dispatch(addComment({
+      _id: "",
       postId,
       content: newComment.trim(),
       author: {username: currentUser.username, _id: ""},
-      createdAt: 'now',
+      createdAt: new Date().toISOString(),
     }));
 
     setNewComment('');

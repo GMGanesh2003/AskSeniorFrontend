@@ -27,7 +27,7 @@ const LoginPage: React.FC = () => {
     dispatch(loginStart());
 
       if (formData.email && formData.password) {
-        const request = await fetch("http://localhost:5000/api/v1/auth/login", {
+        const request = await fetch("https://askseniorbackend.onrender.com/api/v1/auth/login", {
           method: "POST",
           credentials: "include",
           headers: new Headers({
@@ -46,7 +46,7 @@ const LoginPage: React.FC = () => {
           return;
         }
 
-        const userRequest = await fetch("http://localhost:5000/api/v1/auth/current", {
+        const userRequest = await fetch("https://askseniorbackend.onrender.com/api/v1/auth/current", {
           method: "GET",
           credentials: "include",
           headers: new Headers({

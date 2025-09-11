@@ -21,7 +21,26 @@ export interface AuthState {
   error: string | null;
 }
 
-const storedUser = localStorage.getItem("currentUser");
+const getCurrentUser = async () => {
+  const userRequest = await fetch("https://askseniorbackend.onrender.com/api/v1/auth/current", {
+    method: "GET",
+    credentials: "include",
+    headers: new Headers({
+      "Content-Type": "application/json"
+    })
+  })
+  const userResp = await userRequest.json()
+  console.log(userResp);
+
+  if (userResp.error) {
+    return null;
+  }
+
+  localStorage.setItem("currentUser", JSON.stringify(userResp));
+  return JSON.stringify(userResp);
+}
+
+const storedUser = await getCurrentUser();
 
 const initialState: AuthState = {
   isAuthenticated: !!storedUser,

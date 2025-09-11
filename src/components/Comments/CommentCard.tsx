@@ -1,9 +1,9 @@
+import { Edit, MoreHorizontal, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
-import { ChevronUp, ChevronDown, MessageSquare, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
-import { useAppSelector, useAppDispatch } from '../../hooks';
-import { voteComment, addComment, editComment, toggleEditComment, deleteComment } from '../../store/slices/commentsSlice';
-import type { Comment } from '../../store/slices/commentsSlice';
 import ReactTimeAgo from 'react-time-ago';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import type { Comment } from '../../store/slices/commentsSlice';
+import { addComment, deleteComment, editComment, toggleEditComment } from '../../store/slices/commentsSlice';
 
 interface CommentCardProps {
   comment: Comment;
@@ -18,18 +18,15 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, level = 0 }) => {
   const [showReplyBox, setShowReplyBox] = useState(false);
   const [showActions, setShowActions] = useState(false);
 
-  const handleVote = (voteType: 'up' | 'down') => {
-    dispatch(voteComment({ commentId: comment.id, voteType }));
-  };
-
   const handleReply = () => {
     if (!replyText.trim() || !currentUser) return;
 
     dispatch(addComment({
+      _id: "",
       postId: comment.postId,
       parentId: comment.id,
       content: replyText.trim(),
-      author: {username: currentUser.username, _id: ""},
+      author: { username: currentUser.username, _id: "" },
       createdAt: new Date().toISOString(),
     }));
 
@@ -39,18 +36,16 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, level = 0 }) => {
 
   const handleEdit = () => {
     if (!editText.trim()) return;
-    dispatch(editComment({ commentId: comment.id, content: editText.trim() }));
+    dispatch(editComment({ commentId: comment._id, content: editText.trim() }));
   };
 
   const handleDelete = () => {
     if (window.confirm('Are you sure you want to delete this comment?')) {
-      dispatch(deleteComment(comment.id));
+      dispatch(deleteComment(comment._id));
     }
   };
 
-  const getVoteScore = () => comment.upvotes - comment.downvotes || 0;
   const isAuthor = comment.author.username === currentUser?.username;
-  const maxLevel = 5; // Prevent infinite nesting
 
   return (
     <div className={`${level > 0 ? 'ml-4 border-l border-gray-700 pl-4' : ''}`}>
@@ -66,6 +61,46 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, level = 0 }) => {
               <span className="text-green-400">author</span>
             </>
           )}
+          {/* Author Actions */}
+          {/* {isAuthor && (
+            <>
+              <span>•</span>
+
+              <div className="relative">
+                <button
+                  onClick={() => setShowActions(!showActions)}
+                  className="flex items-center space-x-1 text-gray-400 hover:text-white transition-colors"
+                >
+                  <MoreHorizontal className="w-4 h-4" />
+                </button>
+
+                {showActions && (
+                  <div className="absolute top-6 right-0 bg-gray-700 border border-gray-600 rounded-lg shadow-lg z-10">
+                    <button
+                      onClick={() => {
+                        dispatch(toggleEditComment(comment.id));
+                        setShowActions(false);
+                      }}
+                      className="flex items-center space-x-2 px-3 py-2 text-gray-300 hover:bg-gray-600 w-full text-left"
+                    >
+                      <Edit className="w-4 h-4" />
+                      <span>Edit</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleDelete();
+                        setShowActions(false);
+                      }}
+                      className="flex items-center space-x-2 px-3 py-2 text-red-400 hover:bg-gray-600 w-full text-left"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          )} */}
         </div>
 
         {/* Comment Content */}
@@ -86,7 +121,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, level = 0 }) => {
                   Save
                 </button>
                 <button
-                  onClick={() => dispatch(toggleEditComment(comment.id))}
+                  onClick={() => dispatch(toggleEditComment(comment._id))}
                   className="bg-gray-600 hover:bg-gray-500 text-white px-3 py-1 rounded text-sm transition-colors"
                 >
                   Cancel
@@ -98,81 +133,6 @@ const CommentCard: React.FC<CommentCardProps> = ({ comment, level = 0 }) => {
           )}
         </div>
 
-        {/* Comment Actions */}
-        <div className="flex items-center space-x-4 text-sm">
-          {/* Vote Buttons */}
-          <div className="flex items-center space-x-1">
-            <button
-              onClick={() => handleVote('up')}
-              className={`p-1 rounded hover:bg-gray-700 transition-colors ${
-                comment.userVote === 'up' ? 'text-orange-500' : 'text-gray-400 hover:text-orange-500'
-              }`}
-            >
-              <ChevronUp className="w-4 h-4" />
-            </button>
-            <span className={`text-sm font-medium ${
-              getVoteScore() > 0 ? 'text-orange-500' : getVoteScore() < 0 ? 'text-blue-500' : 'text-gray-400'
-            }`}>
-              {getVoteScore()}
-            </span>
-            <button
-              onClick={() => handleVote('down')}
-              className={`p-1 rounded hover:bg-gray-700 transition-colors ${
-                comment.userVote === 'down' ? 'text-blue-500' : 'text-gray-400 hover:text-blue-500'
-              }`}
-            >
-              <ChevronDown className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Reply Button */}
-          {level < maxLevel && (
-            <button
-              onClick={() => setShowReplyBox(!showReplyBox)}
-              className="flex items-center space-x-1 text-gray-400 hover:text-white transition-colors"
-            >
-              <MessageSquare className="w-4 h-4" />
-              <span>Reply</span>
-            </button>
-          )}
-
-          {/* Author Actions */}
-          {isAuthor && (
-            <div className="relative">
-              <button
-                onClick={() => setShowActions(!showActions)}
-                className="flex items-center space-x-1 text-gray-400 hover:text-white transition-colors"
-              >
-                <MoreHorizontal className="w-4 h-4" />
-              </button>
-              
-              {showActions && (
-                <div className="absolute top-6 right-0 bg-gray-700 border border-gray-600 rounded-lg shadow-lg z-10">
-                  <button
-                    onClick={() => {
-                      dispatch(toggleEditComment(comment.id));
-                      setShowActions(false);
-                    }}
-                    className="flex items-center space-x-2 px-3 py-2 text-gray-300 hover:bg-gray-600 w-full text-left"
-                  >
-                    <Edit className="w-4 h-4" />
-                    <span>Edit</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleDelete();
-                      setShowActions(false);
-                    }}
-                    className="flex items-center space-x-2 px-3 py-2 text-red-400 hover:bg-gray-600 w-full text-left"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    <span>Delete</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
 
         {/* Reply Box */}
         {showReplyBox && (
