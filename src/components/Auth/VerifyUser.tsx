@@ -9,7 +9,7 @@ const VerifyUser = () => {
   useEffect(() => {
     const verifyAccount = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/v1/auth/activate/${token}`, {
+        const response = await fetch(`https://askseniorbackend.onrender.com/api/v1/auth/activate/${token}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

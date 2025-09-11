@@ -10,6 +10,7 @@ export interface CommentAuthor {
 }
 
 export interface Comment {
+  _id: string;
   id: string;
   postId: string;
   content: string;
@@ -33,7 +34,7 @@ export interface CommentsState {
 // Constants & Initial State
 // -----------------------------------
 
-const BASE_URL = 'http://localhost:5000/api/v1/answer/comments';
+const BASE_URL = 'https://askseniorbackend.onrender.com/api/v1/answer/comments';
 
 const initialState: CommentsState = {
   comments: [],
@@ -77,7 +78,7 @@ const commentsSlice = createSlice({
       const newComment: Comment = {
         ...action.payload,
         id: Date.now().toString(),
-        upvotes: 1,
+        upvotes: 0  ,
         downvotes: 0,
         replies: [],
       };
@@ -151,8 +152,10 @@ const commentsSlice = createSlice({
     },
     toggleEditComment: (state, action: PayloadAction<string>) => {
       const findAndToggleEdit = (comments: Comment[]): boolean => {
+        console.log("here...", comments);
+        
         for (const comment of comments) {
-          if (comment.id === action.payload) {
+          if (comment._id === action.payload) {
             comment.isEditing = !comment.isEditing;
             return true;
           }

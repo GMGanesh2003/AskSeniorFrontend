@@ -116,7 +116,7 @@ const RegisterPage: React.FC = () => {
     };
     console.log(newUser);
 
-    const request = await fetch("http://localhost:5000/api/v1/auth/register",
+    const request = await fetch("https://askseniorbackend.onrender.com/api/v1/auth/register",
       {
         method: "POST",
         credentials: "include",

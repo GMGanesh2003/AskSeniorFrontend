@@ -260,22 +260,27 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
     setIsLoading(true);
     if (!title.trim() || !selectedCommunity || !currentUser) return;
 
-    const newPost = {
+    const postTags = tags.split(',').map(tag => tag.trim()).filter(Boolean);
+
+    const newPost = { 
       title: title.trim(),
       content: content.trim(),
-      author: currentUser.username,
+      author: {username: currentUser.username, _id: ""},
       community: selectedCommunity,
-      tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
+      tags: postTags,
+      createdAt: new Date().toISOString()
     };
     console.log(newPost);
 
-    const request = await fetch("http://localhost:5000/api/v1/question", {
+    const request = await fetch("https://askseniorbackend.onrender.com/api/v1/question", {
       method: "POST",
       credentials: "include",
       headers: new Headers({
         "Content-Type": "application/json"
       }),
-      body: JSON.stringify(newPost)
+      body: JSON.stringify({
+        title, content, community: selectedCommunity, tags: postTags
+      })
     })
     const resp = await request.json()
     console.log(resp);

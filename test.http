@@ -1,4 +1,4 @@
-@baseUrl=http://localhost:5000
+@baseUrl=https://askseniorbackend.onrender.com
 
 GET {{baseUrl}} HTTP/1.1
 

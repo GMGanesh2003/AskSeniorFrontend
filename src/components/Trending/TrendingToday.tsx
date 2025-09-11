@@ -18,8 +18,8 @@ const TrendingToday: React.FC<TrendingTodayProps> = ({ posts }) => {
       <div className="space-y-3">
         {posts.map((post, index) => (
           <Link
-            key={post.id}
-            to={`/post/${post.id}`}
+            key={post._id}
+            to={`/post/${post._id}`}
             className="block p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
           >
             <div className="flex items-start space-x-3">

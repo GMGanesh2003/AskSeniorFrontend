@@ -10,7 +10,7 @@ interface PostFeedProps {
 
 const PostFeed: React.FC<PostFeedProps> = ({ showPopularOnly, communityFilter }) => {
   const dispatch = useAppDispatch();
-  const { posts, sortBy, searchQuery, activeFilters } = useAppSelector(state => state.posts);
+  const { posts, sortBy, searchQuery, activeFilters, loading } = useAppSelector(state => state.posts);
 
   useEffect(() => {
     dispatch(fetchPosts());
@@ -99,6 +99,12 @@ const PostFeed: React.FC<PostFeedProps> = ({ showPopularOnly, communityFilter })
         </p>
       </div>
     );
+  }
+
+  console.log(loading);
+  
+  if (loading) {
+    return <h1>fetching posts......</h1>;
   }
 
   return (

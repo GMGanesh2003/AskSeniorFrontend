@@ -176,12 +176,15 @@ export interface PostsState {
   loading: boolean;
   error: string | null;
 }
-const BASE_URL = 'http://localhost:5000/api/v1/question/ques';
+const BASE_URL = 'https://askseniorbackend.onrender.com/api/v1/question/ques';
 
 export const fetchPosts = createAsyncThunk<Post[]>(
   'posts/fetchPosts',
+
   async (_, { rejectWithValue }) => {
     try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
       const response = await fetch(BASE_URL, {
         method: 'GET',
         credentials: 'include',
@@ -223,7 +226,7 @@ const postsSlice = createSlice({
       const newPost: Post = {
         ...action.payload,
         id: Date.now().toString(),
-        upvotes: 1,
+        upvotes: 0,
         downvotes: 0,
         comments: 0,
         saved: false,

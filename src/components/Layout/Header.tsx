@@ -19,7 +19,7 @@ const Header: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    const userRequest = await fetch("http://localhost:5000/api/v1/auth/logout", {
+    const userRequest = await fetch("https://askseniorbackend.onrender.com/api/v1/auth/logout", {
       method: "POST",
       credentials: "include",
       headers: new Headers({
